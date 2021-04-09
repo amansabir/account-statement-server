@@ -1,14 +1,13 @@
 package com.nagarro.accountstatementserver.service;
 
-import java.util.Optional;
-
+import com.nagarro.accountstatementserver.domain.Account;
+import com.nagarro.accountstatementserver.domain.repository.AccountRepository;
+import com.nagarro.accountstatementserver.exception.GenericRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.nagarro.accountstatementserver.domain.Account;
-import com.nagarro.accountstatementserver.domain.repository.AccountRepository;
-import com.nagarro.accountstatementserver.exception.GenericRuntimeException;
+import java.util.Optional;
 
 
 @Service

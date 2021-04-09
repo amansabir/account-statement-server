@@ -1,16 +1,15 @@
 package com.nagarro.accountstatementserver.security;
 
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.nagarro.accountstatementserver.domain.Role;
+import com.nagarro.accountstatementserver.exception.GenericRuntimeException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,17 +19,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.nagarro.accountstatementserver.domain.Role;
-import com.nagarro.accountstatementserver.exception.GenericRuntimeException;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -116,11 +109,7 @@ public class JwtTokenProvider {
                     .setSigningKey(secretKey)
                     .parseClaimsJws(token);
             String username = getUsername(token);
-            if (isTokenPresentInInvaidTokenCache(username, token)) {
-                return false;
-            }
-
-            return true;
+            return !isTokenPresentInInvaidTokenCache(username, token);
         } catch (JwtException | IllegalArgumentException e) {
             throw new GenericRuntimeException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -141,10 +130,7 @@ public class JwtTokenProvider {
 
     public boolean isTokenPresentInInvaidTokenCache(String username, String token) {
         Optional<String> invalidToken = Optional.ofNullable(this.invalidTokenCache.getUnchecked(username));
-        if (token.equals(invalidToken.orElseGet(() -> ""))) {
-            return true;
-        }
-        return false;
+        return token.equals(invalidToken.orElseGet(String::new));
 
     }
 

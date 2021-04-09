@@ -1,12 +1,11 @@
 package com.nagarro.accountstatementserver.functional;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nagarro.accountstatementserver.controller.RequestCredentials;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 public class TestAuthenticationHelper {
 
@@ -14,12 +13,11 @@ public class TestAuthenticationHelper {
         RequestCredentials authenticationUser = getAuthenticationUser(username, password);
         String authenticationBody = getBody(authenticationUser);
         HttpHeaders authenticationHeaders = getHeaders();
-        return new HttpEntity<String>(authenticationBody, authenticationHeaders);
+        return new HttpEntity<>(authenticationBody, authenticationHeaders);
     }
 
     private static RequestCredentials getAuthenticationUser(String username, String password) {
-        RequestCredentials creadentials = new RequestCredentials(username, password);
-        return creadentials;
+        return new RequestCredentials(username, password);
     }
 
     public static HttpHeaders getHeaders() {
@@ -29,7 +27,7 @@ public class TestAuthenticationHelper {
         return headers;
     }
 
-    private static String getBody(final RequestCredentials creadentials) throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(creadentials);
+    private static String getBody(final RequestCredentials credentials) throws JsonProcessingException {
+        return new ObjectMapper().writeValueAsString(credentials);
     }
 }

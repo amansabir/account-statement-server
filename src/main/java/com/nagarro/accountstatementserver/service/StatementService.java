@@ -1,21 +1,19 @@
 package com.nagarro.accountstatementserver.service;
 
 
+import com.nagarro.accountstatementserver.domain.Statement;
+import com.nagarro.accountstatementserver.domain.repository.StatementRepository;
+import com.nagarro.accountstatementserver.exception.GenericRuntimeException;
+import com.nagarro.accountstatementserver.utilities.ServerConstants;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.nagarro.accountstatementserver.domain.Statement;
-import com.nagarro.accountstatementserver.domain.repository.StatementRepository;
-import com.nagarro.accountstatementserver.exception.GenericRuntimeException;
-import com.nagarro.accountstatementserver.utilities.ServerConstants;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -48,11 +46,11 @@ public class StatementService {
             try {
                 sdf.parse(date.get());
             } catch (ParseException e) {
-                return false;
+                return true;
 
             }
         }
-        return true;
+        return false;
     }
 
 }

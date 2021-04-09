@@ -1,13 +1,12 @@
 package com.nagarro.accountstatementserver.domain.repository;
 
 
-import java.util.List;
-
+import com.nagarro.accountstatementserver.domain.Statement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
-import com.nagarro.accountstatementserver.domain.Statement;
+import java.util.List;
 
 public interface StatementRepository extends JpaRepository<Statement, Long>, JpaSpecificationExecutor<Statement> {
 

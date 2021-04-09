@@ -1,14 +1,12 @@
 package com.nagarro.accountstatementserver.security;
 
-import java.util.Collection;
-import java.util.Collections;
-
+import com.nagarro.accountstatementserver.domain.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.nagarro.accountstatementserver.domain.User;
-
-import lombok.Getter;
+import java.util.Collection;
+import java.util.Collections;
 
 public class ServerUserPrincipal implements UserDetails {
 

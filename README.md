@@ -23,11 +23,11 @@ Account Statement Service is RESTFull API which can be consumed for getting Acco
 
 2. cd account-statement-server
 
-3. execute "mvn clean complile" in terminal
-![clean-compile](/images/clean-compile.png)
+3. execute "mvn clean compile" in terminal
+   ![clean-compile](/images/clean-compile.png)
 
 4. execute "mvn test" in terminal
-![clean-compile](/images/test.png)
+   ![clean-compile](/images/test.png)
 
 **Docker Images Generation Steps**
 
@@ -37,6 +37,7 @@ Account Statement Service is RESTFull API which can be consumed for getting Acco
 2. docker run -p 8080:8080 account-statement-service:0.0.1
 
 *Pull Image from Docker Hub and Run Container*
+
 1. docker pull docker.io/amansabir/account-statement-service:0.0.1
 2. docker run -p 8080:8080 amansabir/account-statement-service:0.0.1
 

@@ -1,14 +1,13 @@
 package com.nagarro.accountstatementserver.domain.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Optional;
-
+import com.nagarro.accountstatementserver.domain.Account;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import com.nagarro.accountstatementserver.domain.Account;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 class AccountRepositoryTest {
@@ -22,7 +21,7 @@ class AccountRepositoryTest {
         Optional<Account> account = accountRepository.findById(1201L);
 
         assertThat(account
-                .get()
+                .orElseGet(Account::new)
                 .getAccountNumber()).isEqualTo("123456723");
     }
 
@@ -32,7 +31,7 @@ class AccountRepositoryTest {
         Optional<Account> account = accountRepository.findById(1202L);
 
         assertThat(account
-                .get()
+                .orElseGet(Account::new)
                 .getAccountNumber()).isEqualTo("123456724");
     }
 
