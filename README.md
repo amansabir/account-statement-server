@@ -41,6 +41,27 @@ Account Statement Service is RESTFull API which can be consumed for getting Acco
 1. docker pull docker.io/amansabir/account-statement-service:0.0.1
 2. docker run -p 8080:8080 amansabir/account-statement-service:0.0.1
 
+**Sample Rest Uri**
+
+*Sign In*
+
+http://localhost:8080/users/signin
+
+*Date Based Search*
+
+http://localhost:8080/api/account/1201/statement?fromDate=2021-01-01&toDate=2021-02-01
+
+*Date And Amount Based Search*
+
+http://localhost:8080/api/account/1201/statement?fromDate=2021-01-01&toDate=2021-02-01&toAmount=35000&fromAmount=20000
+
+**Sample Data**
+
+*data.sql
+
+**Test Evidence**
+
+Test Evidence.pdf
 
 
 
