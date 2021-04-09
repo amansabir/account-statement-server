@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">java (2) (09-Apr-2021 3:21:43 pm)</a> &gt; <a href="../../index.html" class="el_group">account-statement-server</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.nagarro.accountstatementserver.controller</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.nagarro.accountstatementserver.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.nagarro.accountstatementserver.exception.GenericRuntimeException;
+import com.nagarro.accountstatementserver.service.UserService;
+
+@RestController
+@RequestMapping(&quot;/users&quot;)
+<span class="fc" id="L18">public class UserController {</span>
+
+    @Autowired
+    private UserService userService;
+
+    @PostMapping(&quot;/signin&quot;)
+    public String signIn(@RequestBody RequestCredentials credentials) {
+
+<span class="fc" id="L26">        return userService.signin(credentials.getUsername(), credentials.getPassword());</span>
+    }
+
+    @PostMapping(&quot;/signout&quot;)
+    public ResponseEntity&lt;String&gt; signOut(HttpServletRequest request) {
+
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">        if (userService.signOutUser(request)) {</span>
+<span class="fc" id="L33">            return new ResponseEntity&lt;String&gt;(&quot;Signout successful&quot;, HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L35">            throw new GenericRuntimeException(&quot;Not able to signout user&quot;, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+        }
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span>java (2) (09-Apr-2021 3:21:43 pm)</div></body></html>

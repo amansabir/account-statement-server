@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>JwtTokenProvider.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">java (2) (09-Apr-2021 3:21:43 pm)</a> &gt; <a href="../../index.html" class="el_group">account-statement-server</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.nagarro.accountstatementserver.security</a> &gt; <span class="el_source">JwtTokenProvider.java</span></div><h1>JwtTokenProvider.java</h1><pre class="source lang-java linenums">package com.nagarro.accountstatementserver.security;
+
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.nagarro.accountstatementserver.domain.Role;
+import com.nagarro.accountstatementserver.exception.GenericRuntimeException;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
+
+@Component
+<span class="fc" id="L36">@Slf4j</span>
+<span class="fc" id="L37">public class JwtTokenProvider {</span>
+
+    @Value(&quot;${security.jwt.token.secret-key:app-account-statement-secret-wilecoyote}&quot;)
+    private String secretKey;
+
+    @Value(&quot;${security.jwt.token.expire-length:3600000}&quot;)
+    private long validityInMilliseconds;
+
+    @Autowired
+    private CustomUserDetails customUserDetails;
+
+    private LoadingCache&lt;String, String&gt; invalidTokenCache;
+
+    @PostConstruct
+    protected void init() {
+<span class="fc" id="L52">        secretKey = Base64</span>
+<span class="fc" id="L53">                .getEncoder()</span>
+<span class="fc" id="L54">                .encodeToString(secretKey.getBytes());</span>
+
+<span class="fc" id="L56">        invalidTokenCache = CacheBuilder</span>
+<span class="fc" id="L57">                .newBuilder()</span>
+<span class="fc" id="L58">                .expireAfterAccess(60, TimeUnit.MINUTES)</span>
+<span class="fc" id="L59">                .build(new CacheLoader&lt;String, String&gt;() {</span>
+                    @Override
+                    public String load(String key) {
+<span class="fc" id="L62">                        return key.toUpperCase();</span>
+                    }
+                });
+<span class="fc" id="L65">    }</span>
+
+    public String createToken(String username, List&lt;Role&gt; roles) {
+
+<span class="fc" id="L69">        Claims claims = Jwts</span>
+<span class="fc" id="L70">                .claims()</span>
+<span class="fc" id="L71">                .setSubject(username);</span>
+<span class="fc" id="L72">        claims.put(&quot;auth&quot;, roles</span>
+<span class="fc" id="L73">                .stream()</span>
+<span class="fc" id="L74">                .map(s -&gt; new SimpleGrantedAuthority(s.getAuthority()))</span>
+<span class="fc" id="L75">                .filter(Objects::nonNull)</span>
+<span class="fc" id="L76">                .collect(Collectors.toList()));</span>
+
+<span class="fc" id="L78">        Date now = new Date();</span>
+<span class="fc" id="L79">        Date validity = new Date(now.getTime() + validityInMilliseconds);</span>
+
+<span class="fc" id="L81">        return Jwts</span>
+<span class="fc" id="L82">                .builder()</span>
+<span class="fc" id="L83">                .setClaims(claims)</span>
+<span class="fc" id="L84">                .setIssuedAt(now)</span>
+<span class="fc" id="L85">                .setExpiration(validity)</span>
+<span class="fc" id="L86">                .signWith(SignatureAlgorithm.HS256, secretKey)</span>
+<span class="fc" id="L87">                .compact();</span>
+    }
+
+    public Authentication getAuthentication(String token) {
+<span class="fc" id="L91">        UserDetails userDetails = customUserDetails.loadUserByUsername(getUsername(token));</span>
+<span class="fc" id="L92">        return new UsernamePasswordAuthenticationToken(userDetails, &quot;&quot;, userDetails.getAuthorities());</span>
+    }
+
+    public String getUsername(String token) {
+<span class="fc" id="L96">        return Jwts</span>
+<span class="fc" id="L97">                .parser()</span>
+<span class="fc" id="L98">                .setSigningKey(secretKey)</span>
+<span class="fc" id="L99">                .parseClaimsJws(token)</span>
+<span class="fc" id="L100">                .getBody()</span>
+<span class="fc" id="L101">                .getSubject();</span>
+    }
+
+    public String resolveToken(HttpServletRequest req) {
+<span class="fc" id="L105">        String bearerToken = req.getHeader(&quot;Authorization&quot;);</span>
+<span class="pc bpc" id="L106" title="1 of 4 branches missed.">        if (bearerToken != null &amp;&amp; bearerToken.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="fc" id="L107">            return bearerToken.substring(7);</span>
+        }
+<span class="fc" id="L109">        return null;</span>
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts
+<span class="fc" id="L115">                    .parser()</span>
+<span class="fc" id="L116">                    .setSigningKey(secretKey)</span>
+<span class="fc" id="L117">                    .parseClaimsJws(token);</span>
+<span class="fc" id="L118">            String username = getUsername(token);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            if (isTokenPresentInInvaidTokenCache(username, token)) {</span>
+<span class="fc" id="L120">                return false;</span>
+            }
+
+<span class="fc" id="L123">            return true;</span>
+<span class="fc" id="L124">        } catch (JwtException | IllegalArgumentException e) {</span>
+<span class="fc" id="L125">            throw new GenericRuntimeException(&quot;Expired or invalid JWT token&quot;, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+        }
+    }
+
+    public boolean addTokenToInvalidCache(HttpServletRequest req) {
+        try {
+<span class="fc" id="L131">            String token = resolveToken(req);</span>
+<span class="fc" id="L132">            validateToken(token);</span>
+<span class="fc" id="L133">            String username = getUsername(token);</span>
+<span class="fc" id="L134">            invalidTokenCache.put(username, token);</span>
+<span class="fc" id="L135">            return true;</span>
+<span class="nc" id="L136">        } catch (Exception ex) {</span>
+<span class="nc" id="L137">            log.error(&quot;Exception occored while adding token to &quot;, ex);</span>
+<span class="nc" id="L138">            return false;</span>
+        }
+    }
+
+    public boolean isTokenPresentInInvaidTokenCache(String username, String token) {
+<span class="fc" id="L143">        Optional&lt;String&gt; invalidToken = Optional.ofNullable(this.invalidTokenCache.getUnchecked(username));</span>
+<span class="pc bfc" id="L144" title="All 2 branches covered.">        if (token.equals(invalidToken.orElseGet(() -&gt; &quot;&quot;))) {</span>
+<span class="fc" id="L145">            return true;</span>
+        }
+<span class="fc" id="L147">        return false;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span>java (2) (09-Apr-2021 3:21:43 pm)</div></body></html>
