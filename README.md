@@ -14,7 +14,7 @@ Account Statement Service is RESTFull API which can be consumed for getting Acco
 
 1. Java 8
 2. Spring/ Spring Boot
-3. JWT Authentication Token
+3. JWT Token For Authentication
 4. HSQL in-memory database
 
 **Code Setup Steps**
@@ -23,11 +23,28 @@ Account Statement Service is RESTFull API which can be consumed for getting Acco
 
 2. cd account-statement-server
 
-3. mvn clean complile
+3. execute "mvn clean complile" in terminal
 ![clean-compile](/images/clean-compile.png)
 
-4. mvn test
+4. execute "mvn test" in terminal
 ![clean-compile](/images/test.png)
+
+**Docker Images Generation Steps**
+
+*Generate Image and Run Container*
+
+1. docker build -f DockerFile -t account-statement-service:0.0.1 .
+2. docker run -p 8080:8080 account-statement-service:0.0.1
+
+*Pull Image from Docker Hub and Run Container*
+1. docker pull docker.io/amansabir/account-statement-service:0.0.1
+2. docker run -p 8080:8080 amansabir/account-statement-service:0.0.1
+
+
+
+
+
+
 
 
  
