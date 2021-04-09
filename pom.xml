@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.nagarro</groupId>
-	<artifactId>account-statemeent-server</artifactId>
+	<artifactId>account-statement-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>account-statemeent-server</name>
+	<name>account-statement-server</name>
 	<description>Assignment for Nagarro</description>
 	<properties>
 		<java.version>1.8</java.version>
