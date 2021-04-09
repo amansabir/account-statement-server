@@ -1,7 +1,5 @@
 package com.nagarro.accountstatementserver.utilities;
 
-import org.apache.catalina.Server;
-
 import java.time.format.DateTimeFormatter;
 
 public class ServerConstants {
